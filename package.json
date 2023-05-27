@@ -2,7 +2,7 @@
   "name": "gitcrud",
   "version": "1.0.0",
   "description": "A framework to manage file based dataset stored on Github.",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/roberto-sanfelice/githubcrud#readme",
   "dependencies": {
-    "dotenv": "^16.0.3",
-    "octokit": "^2.0.19"
+    "dotenv": "^16.0.3"
   }
 }
