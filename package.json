@@ -1,5 +1,5 @@
 {
-  "name": "githubcrud",
+  "name": "gitcrud",
   "version": "1.0.0",
   "description": "A framework to manage file based dataset stored on Github.",
   "main": "index.js",
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/roberto-sanfelice/githubcrud.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/roberto-sanfelice/githubcrud/issues"
   },
