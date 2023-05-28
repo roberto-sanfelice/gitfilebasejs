@@ -1,12 +1,15 @@
 /**
- * Export lib/gitcrud
+ * Export lib/gitfilebasejs
  *
  */
 
 'use strict';
 
-const gitcrud = require("./src/");
+const gitfilebasejs = require("./src/");
 
-module.exports = gitcrud;
-module.exports.default = gitcrud;
-module.exports.gitcrud = gitcrud;
+module.exports = gitfilebasejs;
+module.exports.default = gitfilebasejs;
+module.exports.gitfilebasejs = gitfilebasejs;
+
+module.exports.gitfilebasejs.schemaType = gitfilebasejs.schemaType;
+module.exports.gitfilebasejs.schemaType = gitfilebasejs.FileSchema;
