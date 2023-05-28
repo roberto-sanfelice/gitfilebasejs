@@ -1,5 +1,5 @@
 {
-  "name": "filebasejs",
+  "name": "gitfilebasejs",
   "version": "1.0.0",
   "description": "A framework to manage file based dataset stored on Github.",
   "main": "index.js",
