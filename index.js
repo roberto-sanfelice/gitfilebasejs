@@ -11,5 +11,5 @@ module.exports = gitfilebasejs;
 module.exports.default = gitfilebasejs;
 module.exports.gitfilebasejs = gitfilebasejs;
 
-module.exports.gitfilebasejs.schemaType = gitfilebasejs.schemaType;
-module.exports.gitfilebasejs.schemaType = gitfilebasejs.FileSchema;
+module.exports.FileSchema = gitfilebasejs.schema.FileSchema;
+module.exports.FileModel = gitfilebasejs.schema.FileModel;

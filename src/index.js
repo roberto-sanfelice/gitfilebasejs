@@ -1,1 +1,1 @@
-module.exports = require('./FileSchema');
+module.exports.schema = require('./schema');

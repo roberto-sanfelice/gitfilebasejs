@@ -1,15 +1,16 @@
 require('dotenv').config();
-const {FileSchema} = require('../index');
+const {FileModel, FileSchema} = require('../index');
 
-const TestSchema = new FileSchema({
-    nome: 'string',
-    età : {
-        type: 'number'
-    },
-    matricola: 'string'
+const testSchema = new FileSchema({
+    property1: 'string',
+    property2: 'number',
+    property3 : {
+        property3_1: 'string',
+        property3_2: 'string'
+    }
 })
 
-console.log(TestSchema);
+console.log(testSchema);
 
 // Select the repository you want to use as a database
 //const database = new gitfilebasejs({
