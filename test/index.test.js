@@ -1,19 +1,21 @@
+'use strict'
+
 require('dotenv').config();
-const {FileModel, FileSchema} = require('../index');
+const gitfilebasejs = require('../index');
 
-const testSchema = new FileSchema({
-    property1: 'string',
-    property2: 'number',
-    property3 : {
-        property3_1: 'string',
-        property3_2: 'string'
-    }
-})
+gitfilebasejs.connect({
+    owner: "roberto-sanfelice",
+    repo: "math_collection",
+    token: process.env.GITHUB_USER_TOKEN
+}).then(() => {
+    console.log("Connected to GitHub Repository.")
+}).catch(error => {
+    console.log(error);
+});
 
-console.log(testSchema);
-
-// Select the repository you want to use as a database
-//const database = new gitfilebasejs({
-//    repo: "https://username/repositoryname/",
-//   auth: process.env.AUTH_KEY
-//});
+/*
+ * const database = new gitfilebasejs({
+ *    repo: "https://username/repositoryname/",
+ *    auth: process.env.AUTH_KEY
+ * });
+*/

@@ -1,9 +1,9 @@
 'use strict'
 
 class FileModel {
-    constructor(modelName, fileSchema) {
+    constructor(modelName, fileObj) {
         this.modelName = modelName;
-        this.fileSchema = fileSchema;
+        this.fileJson = JSON.stringify(fileObj);
     }
 }
 
