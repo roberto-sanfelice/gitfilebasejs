@@ -5,8 +5,8 @@ const validate = require('./validate');
 module.exports = {
     createRepo: async options => {
         validate.options(options);
-        
-        const options = {
+
+        const httpsOptions = {
             hostname: 'api.github.com',
             path: '/user/repos',
             method: 'POST',
@@ -23,7 +23,7 @@ module.exports = {
             auto_init: true
         });
 
-        const request = https.request(options, (response) => {
+        const request = https.request(httpsOptions, (response) => {
             if (response.statusCode === 201) {
                 console.log('Repository created successfully');
             } else {

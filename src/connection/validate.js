@@ -1,44 +1,38 @@
 'use strict'
 
 const https = require("https");
+const Ajv = require("ajv");
+const ajv = new Ajv({ useDefaults: true });
+
+const meta_schema = {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    properties: {
+        token: {
+            type: "string"
+        },
+        owner: {
+            type: "string"
+        },
+        repo: {
+            type: "string"
+        },
+        branch: {
+            type: "string",
+            default: "main"
+        }
+    },
+    required: ["token", "owner", "repo"],
+    additionalProperties: false
+}
 
 module.exports = {
-    options: (options) => {
-        if (!options.hasOwnProperty("owner")) {
-            throw new Error("Owner username required.");
-        } else {
-            if (typeof options.owner !== 'string' && !(options.owner instanceof String)) {
-                throw new error("Owner parameter must be a string.");
-            }
-        }
-    
-        if (!options.hasOwnProperty("repo")) {
-            throw new Error("Repository required.");
-        } else if (typeof options.repo !== 'string' && !(options.repo instanceof String)) {
-            throw new Error("Repo parameter must be an object or a string.");
-        }
-    
-        if (!options.hasOwnProperty("branch")) {
-            options.branch = "main";
-        } else {
-            if (typeof options.branch !== 'string' && !(options.branch instanceof String)) {
-                throw new Error("Owner parameter must be a string.")
-            }
-        }
-    
-        if (!options.hasOwnProperty("token")) {
-            throw new Error("Token required. Check GitHub documentations to generate one.");
-        } else if (typeof options.token !== "string" && !(options.token instanceof String)) {
-            throw new error("Token parameter must be a string.")
-        }
-    
-        for (let key in options) {
-            if (options.hasOwnProperty(key) && !["owner", "repo", "branch", "token"].includes(key)) throw new Error(`Unrecognized parameter: ${key}`);
-        }
+    options: options => {
+        if (!ajv.validate(meta_schema, options)) throw new Error(validate.error);
     },
 
     token: async options => {
-        httpsOptions = {
+        let httpsOptions = {
             hostname: 'api.github.com',
             path: `/user`,
             method: 'GET',
@@ -50,7 +44,7 @@ module.exports = {
 
         const tokenRequest = https.request(httpsOptions, (response) => {
             if (response.statusCode !== 200) throw new Error('Invalid token.');
-        })
+        });
 
         tokenRequest.on('error', (error) => {
             console.error('Request error:', error);
@@ -60,7 +54,7 @@ module.exports = {
     },
 
     repository: async options => {
-        httpsOptions = {
+        let httpsOptions = {
             hostname: 'api.github.com',
             path: `/repos/${options.owner}/${options.repo}`,
             method: 'GET',
@@ -82,7 +76,7 @@ module.exports = {
     },
 
     branch: async options => {
-        httpsOptions = {
+        let httpsOptions = {
             hostname: 'api.github.com',
             path: `/repos/${options.owner}/${options.repo}/branches/${options.branch}`,
             method: 'GET',

@@ -1,3 +1,4 @@
-module.exports.schema = require('./schema');
-module.exports.connect = require('./connect');
-module.exports.gitutils = require('./gitutils');
+'use strict'
+
+module.exports.connection = require('./connection/');
+module.exports.schema = require("./schema");

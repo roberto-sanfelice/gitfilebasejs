@@ -3,19 +3,24 @@
 require('dotenv').config();
 const gitfilebasejs = require('../index');
 
-gitfilebasejs.connect({
+const options = {
+    token: process.env.GITHUB_USER_TOKEN,
     owner: "roberto-sanfelice",
-    repo: "math_collection",
-    token: process.env.GITHUB_USER_TOKEN
-}).then(() => {
-    console.log("Connected to GitHub Repository.")
-}).catch(error => {
+    repo: "math_collection"
+}
+
+gitfilebasejs.connect(options).then((result) => {
+    console.log(result);
+
+    const testSchema = new gitfilebasejs.FileSchema({
+        name: "string",
+        surname: "string",
+        age: "number"
+    });
+
+    const fileModel = new gitfilebasejs.FileModel("User", testSchema);
+
+    
+}).catch((error) => {
     console.log(error);
 });
-
-/*
- * const database = new gitfilebasejs({
- *    repo: "https://username/repositoryname/",
- *    auth: process.env.AUTH_KEY
- * });
-*/
