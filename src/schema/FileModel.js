@@ -1,4 +1,3 @@
-const { v4: uuidv4 } = require('uuid');
 const { getConnection } = require('../connection/index');
 const https = require('https');
 const Ajv = require('ajv');
@@ -10,16 +9,14 @@ class FileModel {
         this.fileSchema = fileSchema;
     }
 
-    async create(object) {
+    async create(object, fileID) {
         const connectionSettings = getConnection();
 
         if (Object.keys(connectionSettings).length === 0) {
             throw new Error("Connection not established.")
         }
 
-        ajv.compile(this.fileSchema.valid_user_schema)(object);
         const fileContent = JSON.stringify(object);
-        const fileID = uuidv4();
         const fileName = `${fileID}.json`;
         const filePath = `${this.modelName}/${fileName}`;
 
@@ -39,7 +36,7 @@ class FileModel {
             content: Buffer.from(fileContent).toString('base64'),
         };
 
-        const sha = await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const req = https.request(httpsOptions, (res) => {
                 let responseBody = '';
 
@@ -49,7 +46,11 @@ class FileModel {
 
                 res.on('end', () => {
                     if (res.statusCode === 201) {
-                        resolve(JSON.parse(responseBody).content.sha);
+                        const obj = {
+                            _id: fileID,
+                            _sha: JSON.parse(responseBody).content.sha
+                        }
+                        resolve(obj);
                     } else {
                         reject(
                             new Error(
@@ -64,21 +65,68 @@ class FileModel {
                 reject(error);
             });
 
+            req.write(JSON.stringify(fileData));
             req.end();
         });
-
-        return {
-            _id: fileID,
-            _sha: sha
-        };
     }
 
-    async read(fileID) {
-
+    async update() {
+        return new Promise((resolve, reject) => {
+            reject("Funzione update ancora da implementare.")
+        });
     }
 
-    async update(fileID) {
-        
+    static async read(modelName, fileID) {
+        const connectionSettings = getConnection();
+
+        if (Object.keys(connectionSettings).length === 0) {
+            throw new Error("Connection not established.")
+        }
+
+        const fileName = `${fileID}.json`;
+        const filePath = `${modelName}/${fileName}`;
+
+        return new Promise((resolve, reject) => {
+            const httpsOptions = {
+                hostname: 'api.github.com',
+                path: `/repos/${connectionSettings.owner}/${connectionSettings.repo}/contents/${filePath}?ref=${connectionSettings.branch}`,
+                method: 'GET',
+                headers: {
+                    'User-Agent': 'Node.js',
+                    Authorization: `Bearer ${connectionSettings.token}`,
+                },
+            }
+
+            const req = https.request(httpsOptions, (res) => {
+                if (res.statusCode !== 200) {
+                    reject(new Error(`Failed to read file: ${res.statusCode} ${res.statusMessage}`));
+                    return;
+                }
+
+                let responseBody = '';
+
+                res.on('data', (chunk) => {
+                    responseBody += chunk;
+                });
+
+                res.on('end', () => {
+                    const jsonResponse = JSON.parse(responseBody);
+                    const obj = {
+                        _id: fileID,
+                        _sha: jsonResponse.sha,
+                        body: JSON.parse(Buffer.from(jsonResponse.content, 'base64').toString('utf-8'))
+                    }
+
+                    resolve(obj);
+                });
+            });
+
+            req.on('error', (error) => {
+                reject(error);
+            });
+
+            req.end();
+        });
     }
 
     async delete(fileID, fileSha) {

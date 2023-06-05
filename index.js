@@ -11,3 +11,4 @@ module.exports.connection = gitfilebasejs.connection.getConnection;
 
 module.exports.FileSchema = gitfilebasejs.schema.FileSchema;
 module.exports.FileModel = gitfilebasejs.schema.FileModel;
+module.exports.modelFile = gitfilebasejs.schema.modelFile;

@@ -5,7 +5,6 @@ const validate = require('./validate');
 let connection = {};
 
 module.exports = {
-    gitutils: require('./gitutils'),
     connect: async (options) => {
         return new Promise(async (resolve, reject) => {
             try {
