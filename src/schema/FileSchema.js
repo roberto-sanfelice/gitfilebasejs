@@ -1,11 +1,13 @@
+'use strict'
+
 const meta_schema = require("./meta_schema");
 const Ajv = require("ajv");
-const ajv = new Ajv({ useDefaults: true });
+const ajv = new Ajv({ useDefaults: true, allErrors: true });
 
 class FileSchema {
     constructor(user_schema) {
         this.validate(user_schema);
-        this.valid_user_schema = this.convert(user_schema);
+        this.converted_schema = this.convert(user_schema);
     };
 
     validate = schema => {

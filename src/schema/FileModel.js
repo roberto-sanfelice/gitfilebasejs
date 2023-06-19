@@ -1,7 +1,7 @@
+'use strict'
+
 const { getConnection } = require('../connection/index');
 const https = require('https');
-const Ajv = require('ajv');
-const ajv = new Ajv({ useDefaults: true });
 
 class FileModel {
     constructor(modelName, fileSchema) {
@@ -9,15 +9,18 @@ class FileModel {
         this.fileSchema = fileSchema;
     }
 
-    async create(object, fileID) {
-        const connectionSettings = getConnection();
-
-        if (Object.keys(connectionSettings).length === 0) {
-            throw new Error("Connection not established.")
+    async create(object) {
+        let connectionSettings = {}
+        try {
+            connectionSettings = await getConnection();
+        } catch (error) {
+            throw error;
         }
 
-        const fileContent = JSON.stringify(object);
-        const fileName = `${fileID}.json`;
+        const { modelName, fileSchema, _id, _sha, ...body } = object;
+
+        const fileContent = JSON.stringify(body, null, 2);
+        const fileName = `${object._id}.json`;
         const filePath = `${this.modelName}/${fileName}`;
 
         const httpsOptions = {
@@ -46,11 +49,7 @@ class FileModel {
 
                 res.on('end', () => {
                     if (res.statusCode === 201) {
-                        const obj = {
-                            _id: fileID,
-                            _sha: JSON.parse(responseBody).content.sha
-                        }
-                        resolve(obj);
+                        resolve(JSON.parse(responseBody).content.sha);
                     } else {
                         reject(
                             new Error(
@@ -70,17 +69,68 @@ class FileModel {
         });
     }
 
-    async update() {
+    async update(object) {
+        let connectionSettings = {};
+        try {
+            connectionSettings = await getConnection();
+        } catch (error) {
+            throw error;
+        }
+        const { modelName, fileSchema, _id, _sha, ...body } = object;
+
+        const fileContent = JSON.stringify(body);
+        const fileName = `${_id}.json`;
+        const filePath = `${modelName}/${fileName}`;
+
+        const fileData = {
+            message: 'Update file',
+            content: Buffer.from(fileContent).toString('base64'),
+            sha: _sha,
+        };
+
+        const httpsOptions = {
+            hostname: 'api.github.com',
+            path: `/repos/${connectionSettings.owner}/${connectionSettings.repo}/contents/${filePath}?ref=${connectionSettings.branch}`,
+            method: 'PUT',
+            headers: {
+                'User-Agent': 'Node.js',
+                'Authorization': `Bearer ${connectionSettings.token}`,
+                'Content-Type': 'application/json',
+            },
+        };
+
         return new Promise((resolve, reject) => {
-            reject("Funzione update ancora da implementare.")
+            const req = https.request(httpsOptions, (res) => {
+                let responseBody = '';
+
+                res.on('data', (chunk) => {
+                    responseBody += chunk;
+                });
+
+                res.on('end', () => {
+                    if (res.statusCode === 200) {
+                        resolve(`${this.modelName} updated.`);
+                    } else {
+                        reject(new Error(`Failed to update file: ${res.statusCode} ${res.statusMessage}`));
+                    }
+                });
+            });
+
+            req.on('error', (error) => {
+                reject(error);
+            });
+
+            req.write(JSON.stringify(fileData));
+            req.end();
         });
     }
 
     static async read(modelName, fileID) {
-        const connectionSettings = getConnection();
-
-        if (Object.keys(connectionSettings).length === 0) {
-            throw new Error("Connection not established.")
+        let connectionSettings = {};
+        try {
+            connectionSettings = await getConnection();
+        } catch (error) {
+            throw error;
         }
 
         const fileName = `${fileID}.json`;
@@ -130,10 +180,11 @@ class FileModel {
     }
 
     async delete(fileID, fileSha) {
-        const connectionSettings = getConnection();
-
-        if (Object.keys(connectionSettings).length === 0) {
-            throw new Error("Connection not established.");
+        let connectionSettings = {};
+        try {
+            connectionSettings = await getConnection();
+        } catch (error) {
+            throw error;
         }
 
         const fileName = `${fileID}.json`;

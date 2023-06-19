@@ -21,7 +21,9 @@ module.exports = {
             }
         });
     },
-    getConnection: () => {
-        return connection;
+    getConnection: async () => {
+        if (Object.keys(connection).length === 0) {
+            throw new Error("Connection not established.")
+        } else return connection;
     }
 }

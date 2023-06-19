@@ -1,30 +1,34 @@
+'use strict'
+
 const { v4: uuidv4 } = require('uuid');
 
 const Ajv = require('ajv');
-const ajv = new Ajv({ useDefaults: true });
+const ajv = new Ajv({ useDefaults: true, allErrors: true });
 const FileModel = require('./FileModel');
-const { error } = require('ajv/dist/vocabularies/applicator/dependencies');
 
 module.exports = (modelName, fileSchema) => {
     return class extends FileModel {
-        constructor(data, _id = uuidv4(), _sha = "") {
-            ajv.compile(fileSchema.valid_user_schema)(data);
-
+        constructor(data, _id = uuidv4(), _sha = "") {2
+            try {
+                ajv.compile(fileSchema.converted_schema)(data)
+            } catch(validate_error) {
+                throw validate_error;
+            }
+            
             super(modelName, fileSchema);
             this._id = _id;
             this._sha = _sha;
-            this.body = data;
+            Object.assign(this, data); 
         }
 
         async create() {
             return new Promise((resolve, reject) => {
                 try {
-                    super.create(this.body, this._id).then(result => {
-                        this._id = result._id;
-                        this._sha = result._sha;
+                    super.create(this).then(result => {
+                        this._sha = result;
                         resolve(`${modelName} saved.`);
                     }).catch(error => {
-                        throw new Error(error);
+                        throw error;
                     });
                 } catch (error) {
                     reject(error);
@@ -35,10 +39,10 @@ module.exports = (modelName, fileSchema) => {
         async update() {
             return new Promise((resolve, reject) => {
                 try {
-                    super.update().then(result => {
+                    super.update(this).then(result => {
                         resolve(result);
                     }).catch(error => {
-                        throw new Error(error);
+                        throw error;
                     });
                     resolve(`${modelName} updated.`);
                 } catch (error) {
@@ -53,7 +57,7 @@ module.exports = (modelName, fileSchema) => {
                     super.read(modelName, fileID).then(result => {
                         resolve(new this(result.body, result._id, result._sha));
                     }).catch(error => {
-                        throw new Error(error);
+                        throw error;
                     });
                 } catch (error) { reject(error); }
             });
